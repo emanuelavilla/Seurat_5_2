@@ -1,25 +1,47 @@
-# Usa un'immagine base Python
-FROM python:3.9-slim
- 
-# Imposta l'ambiente per evitare messaggi di buffer
-ENV PYTHONUNBUFFERED=1
- 
-# Crea e imposta una directory di lavoro
-WORKDIR /app
- 
-# Aggiorna i pacchetti e installa dipendenze di sistema
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    wget \
-    curl \
-    unzip \
-&& rm -rf /var/lib/apt/lists/*
- 
-# Installa pyega3
-RUN pip install --no-cache-dir pyega3
- 
-# Copia eventuali file di configurazione locali nella directory di lavoro
-# (se necessario, ad esempio un file di configurazione di accesso a EGA)
-# COPY ./config.json /app/config.json
- 
-# Comando di default per mantenere il container attivo
-CMD ["bash"]
+# Usa l'immagine ufficiale di RStudio e R
+FROM rocker/rstudio:latest
+
+# Aggiorna i pacchetti di sistema e installa le dipendenze necessarie, inclusi Git, patch, e libglpk-dev
+RUN apt-get update && \
+    apt-get install -y \
+    libcurl4-openssl-dev \
+    libssl-dev \
+    libxml2-dev \
+    libhdf5-dev \
+    zlib1g-dev \
+    libhdf5-serial-dev \
+    hdf5-tools \
+    gfortran \
+    libpng-dev \
+    libjpeg-dev \
+    libnetcdf-dev \
+    git \
+    patch \
+    libglpk-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+# Installa BiocManager per gestire i pacchetti Bioconductor
+RUN R -e "install.packages('BiocManager')"
+
+# Installa devtools per poter installare pacchetti da GitHub
+RUN R -e "install.packages('devtools')"
+
+# Installa il pacchetto hdf5r da GitHub
+RUN R -e "devtools::install_github('hhoeflin/hdf5r')" && \
+    R -e "install.packages(c('tidyverse', 'viridis', 'gghalves', 'cowplot', 'patchwork', 'gridExtra', 'parallel', 'stringi', 'stringr', 'Signac'))"
+
+# Installa i pacchetti Bioconductor, incluso Seurat
+RUN R -e "BiocManager::install(c('Seurat', 'SeuratObject', 'scran', 'scater', 'scDblFinder', 'SoupX', 'BiocGenerics', 'harmony'))"
+
+# Crea un utente per l'accesso a RStudio
+RUN useradd -m -s /bin/bash rstudio_user && \
+    echo "rstudio_user ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+# Assegna la proprietà della directory all'utente rstudio_user
+RUN chown -R rstudio_user:rstudio_user /home/rstudio_user
+
+# Espone la porta 8787 per l'accesso a RStudio Server
+EXPOSE 8787
+
+# Esegui RStudio come utente rstudio_user
+USER rstudio_user
