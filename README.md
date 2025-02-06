@@ -1,2 +1,2 @@
-# Create the sif image for Seurat 5.2
+# Create the docker image for Seurat 5.2
 
