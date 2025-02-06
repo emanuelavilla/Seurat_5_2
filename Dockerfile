@@ -5,6 +5,9 @@ FROM rocker/rstudio:latest
 RUN apt-get update && \
     apt-get install -y \
     libcurl4-openssl-dev \
+    liblzma-dev \
+    libbz2-dev \
+    libcurl4-openssl-dev \
     libssl-dev \
     libxml2-dev \
     libhdf5-dev \
@@ -28,7 +31,7 @@ RUN R -e "install.packages('devtools')"
 
 # Installa il pacchetto hdf5r da GitHub
 RUN R -e "devtools::install_github('hhoeflin/hdf5r')" && \
-    R -e "install.packages(c('tidyverse', 'viridis', 'gghalves', 'cowplot', 'patchwork', 'gridExtra', 'parallel', 'stringi', 'stringr', 'Signac'))"
+    R -e "install.packages(c('tidyverse', 'viridis', 'gghalves', 'cowplot', 'patchwork', 'gridExtra', 'parallel', 'stringi', 'stringr'))"
 
 # Installa i pacchetti Bioconductor, incluso Seurat
 RUN R -e "BiocManager::install(c('Seurat', 'SeuratObject', 'scran', 'scater', 'scDblFinder', 'SoupX', 'BiocGenerics', 'harmony'))"
