@@ -34,7 +34,7 @@ RUN R -e "devtools::install_github('hhoeflin/hdf5r')" && \
     R -e "install.packages(c('tidyverse', 'viridis', 'gghalves', 'cowplot', 'patchwork', 'gridExtra', 'parallel', 'stringi', 'stringr'))"
 
 # Installa i pacchetti Bioconductor, incluso Seurat
-RUN R -e "BiocManager::install(c('Seurat', 'SeuratObject', 'scran', 'scater', 'scDblFinder', 'SoupX', 'BiocGenerics', 'harmony'))"
+RUN R -e "BiocManager::install(c('Seurat', 'SeuratObject', 'scran', 'scater', 'scDblFinder', 'SoupX', 'BiocGenerics', 'harmony', 'TFBSTools'))"
 
 # Crea un utente per l'accesso a RStudio
 RUN useradd -m -s /bin/bash rstudio_user && \
